@@ -1,0 +1,21 @@
+<!-- templates/index.html -->
+{% extends "layout.html" %}
+
+{% block head %}
+<title>Flowbite Flask</title>
+{% endblock %}
+
+{% block body %}
+<nav class="bg-gray-800 p-4">
+    <div class="container mx-auto flex justify-between items-center">
+        <a href="#" class="text-white text-lg font-semibold">My Website</a>
+        <div class="space-x-4">
+            <a href="#" class="text-gray-400 hover:text-white">Home</a>
+            <a href="#" class="text-gray-400 hover:text-white">About</a>
+            <a href="#" class="text-gray-400 hover:text-white">Contact</a>
+        </div>
+    </div>
+</nav>
+<div class="container mx-auto mt-8"></div>
+    <h1 class="text-4xl font-semibold"></h1>
+{% endblock %}
