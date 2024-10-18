@@ -7,6 +7,48 @@ app.secret_key = 'your_secret_key'
 
 mysql = init_db(app)
 
+@app.route('/')
+def home():
+    try:
+        cur = mysql.connection.cursor()
+        cur.execute('SELECT * FROM users')
+        data = cur.fetchall()
+        cur.close()
+    except Exception as e:
+        flash(f"An error occurred: {str(e)}", 'danger')
+        return redirect(url_for('error_page'))  # Redirect to an error page or handle it appropriately
+
+    return render_template('index.html', users=data)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        if 'name' not in request.form or 'email' not in request.form or 'password' not in request.form:
+            flash('All form fields are required!', 'danger')
+            return redirect(url_for('register'))
+
+        name = request.form['name']
+        email = request.form['email']
+        password = request.form['password']
+
+        cur = mysql.connection.cursor()
+        cur.execute("SELECT * FROM users WHERE email = %s", [email])
+        user = cur.fetchone()
+
+        if user:
+            flash('Email already exists!', 'danger')
+            return redirect(url_for('register'))
+        else:
+            cur.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s)", (name, email, password))
+            mysql.connection.commit()
+            cur.close()
+
+            flash('Registration successful!', 'success')
+            return redirect(url_for('login'))
+
+    return render_template('register.html')
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -32,15 +74,15 @@ def login():
             flash('Invalid email or password!', 'danger')
             return redirect(url_for('login'))
 
-    return render_template('login.html')
+    return render_template('index.html')
 
-@app.route('/')
-def home():
-    if 'loggedin' in session:
-        return render_template('index.html', name=session['name'])
-    else:
-        flash('Please log in to access this page.', 'warning')
-        return redirect(url_for('login'))
+
+@app.route('/error')
+def error_page():
+    return "An error occurred while fetching data."
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 if __name__ == '__main__':
     app.run(debug=True)
